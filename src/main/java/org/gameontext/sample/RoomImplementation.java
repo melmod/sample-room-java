@@ -57,7 +57,12 @@ public class RoomImplementation {
     @PostConstruct
     protected void postConstruct() {
         // Customize the room
-        roomDescription.addCommand("/ping", "Does this work?");
+    	roomDescription.setName("melmod-room");
+        roomDescription.setFullName("Melmod Room");
+        roomDescription.setDescription("Melmod's Room");
+    	roomDescription.addCommand("/ping", "Does this work?");
+    	roomDescription.addItem("button");
+    	roomDescription.addCommand("/push", "Pushes an item, like, a button?");
         Log.log(Level.INFO, this, "Room initialized: {0}", roomDescription);
     }
 
@@ -207,8 +212,13 @@ public class RoomImplementation {
                     // which includes the room description and inventory
                     endpoint.sendMessage(session, Message.createLocationMessage(userId, roomDescription));
                 } else {
-                    endpoint.sendMessage(session,
+                	//Add ability to look at button
+                	if(remainder.contains("button")) {
+                		endpoint.sendMessage(session, Message.createBroadcastEvent(username+" examines the button", userId, "It's a big red button, you are very tempted to..."));
+                	} else {
+                	endpoint.sendMessage(session,
                             Message.createSpecificEvent(userId, LOOK_UNKNOWN));
+                	}
                 }
                 break;
 
@@ -225,6 +235,16 @@ public class RoomImplementation {
                 }
 
                 break;
+            case "/push":
+            	//Handle the push command, response depends on if user pushes button or anything else
+            	
+            	if (remainder==null || !remainder.contains("button")) {
+            		endpoint.sendMessage(session, Message.createSpecificEvent(userId, "What do you want to push?"));
+            	} else {
+            		endpoint.sendMessage(session, Message.createBroadcastEvent(username+" pushes the button.  Nothing happens. Surprising.",userId, "You push the big red button."));
+            	}
+            	
+            	break;
 
             default:
                 endpoint.sendMessage(session,
